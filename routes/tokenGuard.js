@@ -15,9 +15,6 @@ module.exports =  async (req, res, next) => {
         if(user.tokens.token == '') throw "Le token n'existe pas"
         next();
     }catch(e){
-        res.status(401).send({
-            error: true,
-            message: "Le token n'est plus valide, veuillez réinitialiser"
-        });
+        res.status(401).send(e);
     }
 }
