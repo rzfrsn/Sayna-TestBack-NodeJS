@@ -24,7 +24,10 @@ router.get('/user', tokenGuard, (req, res) => {
     const userId = req.user._id;
     User.findById(userId, (e, user) => {
         if(e) return res.status(400).send(e.message);
-        res.status(200).send(user)
+        res.status(200).send({
+            error: false,
+            user
+        })
     }).select({
         _id: 0,
         password: 0,
