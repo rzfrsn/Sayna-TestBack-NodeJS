@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/User');
 const tokenGuard = require('./tokenGuard');
+const bcrypt = require('bcryptjs');
 
 //get all users
 router.get('/users', tokenGuard, (req, res) => {
@@ -60,5 +61,37 @@ router.put('/user', tokenGuard, async (req, res) => {
         res.status(400).send(e);
     }
 })
+
+//set user password
+router.put('/user/password', tokenGuard, async (req, res) => {
+    const userId = req.user._id;
+    const currentPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+    
+    if(newPassword.length < 6) return res.status(400).send({
+        error: true,
+        message: "La longueur du mot de passe doit être >= 6"
+    })
+
+    const user = await User.findById(userId);
+    //check if the old password is correct
+    const validPass = await  bcrypt.compare(currentPassword, user.password);
+    if(!validPass) return res.status(401).send({error: true, message: "Mot de passe eronné"});
+
+    //Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+    
+    user.password = hashedNewPassword;
+    try {
+        await user.save();
+        res.status(200).send({
+            error: false,
+            message: "Mot de passe changé avec succès"
+        })
+    } catch (e) {
+        res.status(400).send(e);
+    }
+});
 
 module.exports = router;
