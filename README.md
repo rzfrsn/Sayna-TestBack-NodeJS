@@ -4,6 +4,9 @@
 
 A NodeJS API that manages a user Authentication. 
 
+## HOST
+https://nodejs-auth-api-sayna-test.herokuapp.com/
+
 ## Installation
 
 ```bash
