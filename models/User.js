@@ -35,6 +35,13 @@ const userSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    tokens: {
+        type: {
+            token: {type: String},
+            refreshToken: {type: String},
+            createdAt: {type: Date}
+        }  
     }
   
 });

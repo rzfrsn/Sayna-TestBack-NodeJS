@@ -2,6 +2,7 @@ const router = require('express').Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const tokenGuard = require('./tokenGuard');
 const { registerValidation, loginValidation } = require('../validations');
 
 //REGISTER
@@ -31,23 +32,36 @@ router.post('/register', async (req, res) => {
         birthday: req.body.birthday,
         gender: req.body.gender,
         email: req.body.email,
-        password: hashedPassword
+        password: hashedPassword,
+        tokens: {
+            token: '',
+            refreshToken: '',
+            createdAt: null
+        }
     });
 
     try {
         const savedUser = await user.save();
         //Create and assign a token
         const token = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET, { expiresIn: '1h' });
-        const refreshToken = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET, { expiresIn: '1y' });
+        const refreshToken = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET, { expiresIn: '30d' });
+
+        savedUser.tokens.token = token;
+        savedUser.tokens.refreshToken = refreshToken;
+        savedUser.tokens.createdAt = new Date();
+        await savedUser.save();
+
         res
         .status(201)
         .header('auth-token', token)
         .send({
             error: false,
             message: "L'utilisateur a bien été créé avec succès",
-            token,
-            refreshToken,
-            createdAt: new Date()
+            tokens: {
+                token: savedUser.tokens.token,
+                refreshToken: savedUser.tokens.refreshToken,
+                createdAt: savedUser.tokens.createdAt
+            }
         });
     } catch (e) {
         res.status(400).send(e);
@@ -74,17 +88,52 @@ router.post('/login', async (req, res) => {
 
     //Create and assign a token
     const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET, { expiresIn: '1h' });
-    const refreshToken = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET, { expiresIn: '1y' });
-    res
+    const refreshToken = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET, { expiresIn: '30d' });
+
+    user.tokens = {
+        token,
+        refreshToken,
+        createdAt: new Date()
+    }
+    try {
+        await user.save()
+        res
         .status(200)
         .header('auth-token', token)
         .send({
             error: false,
             message: "L'utilisateur a été authentifié avec succès",
-            token,
-            refreshToken,
-            createdAt: new Date()
+            tokens: {
+                token: user.tokens.token,
+                refreshToken: user.tokens.refreshToken,
+                createdAt: user.tokens.createdAt
+            }
         });
+
+    } catch (e) {
+        res.status(400).send(e);
+    }
+})
+
+//LOGOUT
+router.delete('/logout', tokenGuard, async (req, res) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    user.tokens = {
+        token: '',
+        refreshToken: '',
+        createdAt: null
+    }
+    
+    try {
+        await user.save();
+        res.status(200).send({
+            error: false,
+            message: "L'utilisateur a été déconnecté avec succès"
+        });
+    } catch (e) {
+        res.status(400).send(e);
+    }
 })
 
 module.exports = router;
