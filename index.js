@@ -26,6 +26,8 @@ app.use('/api/',
     userRoute
 );
 
+app.use('/', defaultRoute);
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
