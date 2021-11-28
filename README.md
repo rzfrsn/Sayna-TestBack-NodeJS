@@ -51,15 +51,14 @@ Use this in order to get registered
 
     ```json
         {
-    "error": false,
-    "message": "L'utilisateur a bien été créé avec succès",
-    "tokens": {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6I...",
-        "createdAt": "2021-11-28T14:26:05.140Z"
-    }
-
-   ```
+        "error": false,
+        "message": "L'utilisateur a bien été créé avec succès",
+        "tokens": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...",
+            "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6I...",
+            "createdAt": "2021-11-28T14:26:05.140Z"
+        }
+     ```
 
 ### Login [POST] [/api/login]
 
@@ -151,7 +150,7 @@ Use this to edit some field in your user profile
             "error": false,
             "message": "L'utilisateur a été modifié avec succès"
         }
-        ```
+    ```
 
 ### Change user password [PUT] [/api/user/password] [Need auth-token in header]
 
@@ -178,7 +177,7 @@ User this and change your password
             "error": false,
             "message": "Mot de passe changé avec succès"
         }
-        ```
+    ```
 
 ### Get users [GET] [/api/users] [Need auth-token in header]
 
@@ -236,11 +235,12 @@ User this and change your password
         + Body
 
         ```json
-        {
-            "error": false,
-            "message": "L'utilisateur a été déconnecté avec succès"
-        }
+            {
+                "error": false,
+                "message": "L'utilisateur a été déconnecté avec succès"
+            }
         ``` 
 
+### HOPE YOU ENJOY IT :D
 
 - Author - [Razafiarison Tafita](https://www.linkedin.com/in/tafita-raza)
